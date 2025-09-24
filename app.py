@@ -175,8 +175,7 @@ class App:
 
                     with gr.TabItem(_("Mic")):  # tab3
                         with gr.Row():
-                            mic_input = gr.Microphone(label=_("Record with Mic"), type="filepath", interactive=True,
-                                                      show_download_button=True)
+                            mic_input = gr.Microphone(label=_("Record with Mic"), streaming=True, interactive=True)
 
                         pipeline_params, dd_file_format, cb_timestamp = self.create_pipeline_inputs()
 
@@ -189,9 +188,16 @@ class App:
 
                         params = [mic_input, dd_file_format, cb_timestamp]
 
-                        btn_run.click(fn=self.whisper_inf.transcribe_mic,
-                                      inputs=params + pipeline_params,
-                                      outputs=[tb_indicator, files_subtitles])
+                        # btn_run.click(fn=self.whisper_inf.transcribe_mic,
+                        #               inputs=params + pipeline_params,
+                        #               outputs=[tb_indicator, files_subtitles])
+                        mic_input.stream(
+                            fn=self.whisper_inf.transcribe_stream,
+                            inputs=params + pipeline_params,
+                            outputs=[tb_indicator],
+                            show_progress="minimal",
+                            time_limit=30
+                        )
                         btn_openfolder.click(fn=lambda: self.open_folder("outputs"), inputs=None, outputs=None)
 
                     with gr.TabItem(_("T2T Translation")):  # tab 4
